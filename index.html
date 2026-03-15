@@ -12,38 +12,34 @@
 
 <body>
     <div class="main">
-        <h1>Books Recommendation System</h1>
+        <h1>E-commerce Recommendation System</h1>
 
         <div class="row mt-3">
             <div class="col-md-4">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h4>Person Profile</h4>
+                        <h4>User Profile</h4>
                     </div>
                     <div class="card-body">
-                        <form id="personForm">
+                        <form id="userForm">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="personSelect" class="form-label">Select Person</label>
-                                    <select class="form-select" id="personSelect">
-                                        <option value="">-- Select a person --</option>
+                                    <label for="userSelect" class="form-label">Select User</label>
+                                    <select class="form-select" id="userSelect">
+                                        <option value="">-- Select a user --</option>
                                     </select>
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label for="personAge" class="form-label">Age</label>
-                                    <input type="number" class="form-control" id="personAge" disabled>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="personSex" class="form-label">Sex</label>
-                                    <input type="text" class="form-control" id="personSex" disabled>
+                                    <label for="userAge" class="form-label">Age</label>
+                                    <input type="number" class="form-control" id="userAge" disabled>
                                 </div>
                             </div>
                         </form>
 
-                        <div id="pastReadingsContainer" class="mt-4">
-                            <h5>Past Readings</h5>
-                            <div id="pastReadingsList" class="row"></div>
+                        <div id="pastPurchasesContainer" class="mt-4">
+                            <h5>Past Purchases</h5>
+                            <div id="pastPurchasesList" class="row"></div>
                         </div>
                     </div>
                 </div>
@@ -67,12 +63,12 @@
                         </div>
 
 
-                        <div class="all-people-readings">
-                            <h5 id="readingsDiv" style="cursor: pointer;">
-                                All People Readings Data
-                                <i id="readingsArrow" class="bi bi-chevron-down"></i>
+                        <div class="all-users-purchases">
+                            <h5 id="purchasesDiv" style="cursor: pointer;">
+                                All Users Purchase Data
+                                <i id="purchasesArrow" class="bi bi-chevron-down"></i>
                             </h5>
-                            <div id="allPeopleReadingsList" class="people-readings-data overflow-auto"
+                            <div id="allUsersPurchasesList" class="user-purchases-data overflow-auto"
                                 style="max-height: 400px;display: none;">
                             </div>
                         </div>
@@ -81,8 +77,8 @@
             </div>
         </div>
 
-        <h3 class="">Books</h3>
-        <div class="row" id="bookList">
+        <h3 class="">Products</h3>
+        <div class="row" id="productList">
         </div>
     </div>
 

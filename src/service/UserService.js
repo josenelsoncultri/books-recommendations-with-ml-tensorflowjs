@@ -42,4 +42,6 @@ export class UserService {
     #setStorage(data) {
         sessionStorage.setItem(this.#storageKey, JSON.stringify(data));
     }
+
+
 }

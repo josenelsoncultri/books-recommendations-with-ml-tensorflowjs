@@ -60,8 +60,8 @@ const userController = UserController.init({
 
 
 userController.renderUsers({
-    "id": 9999,
-    "name": "José Nelson Cultri",
-    "age": 33,
-    "readings": []
+    "id": 99,
+    "name": "Josézin da Silva",
+    "age": 30,
+    "purchases": []
 });

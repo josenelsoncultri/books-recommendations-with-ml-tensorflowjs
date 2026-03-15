@@ -7,12 +7,12 @@ body {
     max-width: 1600px;
 }
 
-.book-card {
+.product-card {
     margin-bottom: 20px;
     height: 100%;
 }
 
-.past-reading {
+.past-purchase {
     background-color: #f8f9fa;
     padding: 8px;
     margin: 5px 0;
@@ -23,12 +23,12 @@ body {
     cursor: pointer;
 }
 
-.past-reading:hover {
+.past-purchase:hover {
     background-color: #f8d7da;
     border-left: 3px solid #dc3545;
 }
 
-.past-reading-highlight {
+.past-purchase-highlight {
     background-color: #d4edda;
     border-left: 3px solid #28a745;
 }
@@ -42,16 +42,16 @@ body {
     margin-top: auto;
 }
 
-#bookList .col-md-3 {
+#productList .col-md-3 {
     margin-bottom: 20px;
 }
 
-.person-reading-summary {
+.user-purchase-summary {
     border-bottom: 1px solid #dee2e6;
     padding: 8px 0;
 }
 
-.person-reading-summary:last-child {
+.user-purchase-summary:last-child {
     border-bottom: none;
 }
 
@@ -76,6 +76,6 @@ body {
     padding: 20px;
 }
 
-.people-readings-data {
+.user-purchases-data {
     transition: max-height 0.3s ease;
 }
