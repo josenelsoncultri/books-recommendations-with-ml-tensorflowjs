@@ -1,16 +1,16 @@
 export class ModelController {
     #modelView;
-    #userService;
+    #personService;
     #events;
-    #currentUser = null;
+    #currentperson = null;
     #alreadyTrained = false;
     constructor({
         modelView,
-        userService,
+        personService,
         events,
     }) {
         this.#modelView = modelView;
-        this.#userService = userService;
+        this.#personService = personService;
         this.#events = events;
 
         this.init();
@@ -28,21 +28,21 @@ export class ModelController {
         this.#modelView.registerTrainModelCallback(this.handleTrainModel.bind(this));
         this.#modelView.registerRunRecommendationCallback(this.handleRunRecommendation.bind(this));
 
-        this.#events.onUserSelected((user) => {
-            this.#currentUser = user;
+        this.#events.onpersonSelected((person) => {
+            this.#currentperson = person;
             if (!this.#alreadyTrained) return
             this.#modelView.enableRecommendButton();
         });
 
         this.#events.onTrainingComplete(() => {
             this.#alreadyTrained = true;
-            if (!this.#currentUser) return
+            if (!this.#currentperson) return
             this.#modelView.enableRecommendButton();
         })
 
-        this.#events.onUsersUpdated(
+        this.#events.onPeopleUpdated(
             async (...data) => {
-                return this.refreshUsersPurchaseData(...data);
+                return this.refreshPeopleReadingData(...data);
             }
         );
         this.#events.onProgressUpdate(
@@ -55,21 +55,21 @@ export class ModelController {
 
 
     async handleTrainModel() {
-        const users = await this.#userService.getUsers();
+        const People = await this.#personService.getPeople();
 
-        this.#events.dispatchTrainModel(users);
+        this.#events.dispatchTrainModel(People);
     }
 
     handleTrainingProgressUpdate(progress) {
         this.#modelView.updateTrainingProgress(progress);
     }
     async handleRunRecommendation() {
-        const currentUser = this.#currentUser;
-        const updatedUser = await this.#userService.getUserById(currentUser.id);
-        this.#events.dispatchRecommend(updatedUser);
+        const currentperson = this.#currentperson;
+        const updatedperson = await this.#personService.getpersonById(currentperson.id);
+        this.#events.dispatchRecommend(updatedperson);
     }
 
-    async refreshUsersPurchaseData({ users }) {
-        this.#modelView.renderAllUsersPurchases(users);
+    async refreshPeopleReadingData({ People }) {
+        this.#modelView.renderAllPeopleReadings(People);
     }
 }

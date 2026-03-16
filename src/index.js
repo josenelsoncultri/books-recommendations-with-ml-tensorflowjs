@@ -1,23 +1,23 @@
-import { UserController } from './controller/UserController.js';
-import { ProductController } from './controller/ProductController.js';
+import { PersonController } from './controller/PersonController.js';
+import { BookController } from './controller/BookController.js';
 import { ModelController } from './controller/ModelTrainingController.js';
 import { TFVisorController } from './controller/TFVisorController.js';
 import { TFVisorView } from './view/TFVisorView.js';
-import { UserService } from './service/UserService.js';
-import { ProductService } from './service/ProductService.js';
-import { UserView } from './view/UserView.js';
-import { ProductView } from './view/ProductView.js';
+import { PersonService } from './service/PersonService.js';
+import { BookService } from './service/BookService.js';
+import { PersonView } from './view/PersonView.js';
+import { BookView } from './view/BookView.js';
 import { ModelView } from './view/ModelTrainingView.js';
 import Events from './events/events.js';
 import { WorkerController } from './controller/WorkerController.js';
 
 // Create shared services
-const userService = new UserService();
-const productService = new ProductService();
+const personService = new PersonService();
+const bookService = new BookService();
 
 // Create views
-const userView = new UserView();
-const productView = new ProductView();
+const personView = new PersonView();
+const bookView = new BookView();
 const modelView = new ModelView();
 const tfVisorView = new TFVisorView();
 const mlWorker = new Worker('/src/workers/modelTrainingWorker.js', { type: 'module' });
@@ -28,13 +28,13 @@ const w = WorkerController.init({
     events: Events
 });
 
-const users = await userService.getDefaultUsers();
-w.triggerTrain(users);
+const People = await personService.getDefaultPeople();
+w.triggerTrain(People);
 
 
 ModelController.init({
     modelView,
-    userService,
+    personService,
     events: Events,
 });
 
@@ -43,25 +43,25 @@ TFVisorController.init({
     events: Events,
 });
 
-ProductController.init({
-    productView,
-    userService,
-    productService,
+BookController.init({
+    bookView,
+    personService,
+    bookService,
     events: Events,
 });
 
 
-const userController = UserController.init({
-    userView,
-    userService,
-    productService,
+const personController = PersonController.init({
+    personView,
+    personService,
+    bookService,
     events: Events,
 });
 
 
-userController.renderUsers({
+personController.renderPeople({
     "id": 99,
     "name": "Josézin da Silva",
     "age": 30,
-    "purchases": []
+    "readings": []
 });

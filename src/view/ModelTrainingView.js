@@ -2,9 +2,9 @@ import { View } from './View.js';
 
 export class ModelView extends View {
     #trainModelBtn = document.querySelector('#trainModelBtn');
-    #purchasesArrow = document.querySelector('#purchasesArrow');
-    #purchasesDiv = document.querySelector('#purchasesDiv');
-    #allUsersPurchasesList = document.querySelector('#allUsersPurchasesList');
+    #readingsArrow = document.querySelector('#readingsArrow');
+    #readingsDiv = document.querySelector('#readingsDiv');
+    #allPeopleReadingsList = document.querySelector('#allPeopleReadingsList');
     #runRecommendationBtn = document.querySelector('#runRecommendationBtn');
     #onTrainModel;
     #onRunRecommendation;
@@ -29,19 +29,19 @@ export class ModelView extends View {
             this.#onRunRecommendation();
         });
 
-        this.#purchasesDiv.addEventListener('click', () => {
-            const purchasesList = this.#allUsersPurchasesList;
+        this.#readingsDiv.addEventListener('click', () => {
+            const readingsList = this.#allPeopleReadingsList;
 
-            const isHidden = window.getComputedStyle(purchasesList).display === 'none';
+            const isHidden = window.getComputedStyle(readingsList).display === 'none';
 
             if (isHidden) {
-                purchasesList.style.display = 'block';
-                this.#purchasesArrow.classList.remove('bi-chevron-down');
-                this.#purchasesArrow.classList.add('bi-chevron-up');
+                readingsList.style.display = 'block';
+                this.#readingsArrow.classList.remove('bi-chevron-down');
+                this.#readingsArrow.classList.add('bi-chevron-up');
             } else {
-                purchasesList.style.display = 'none';
-                this.#purchasesArrow.classList.remove('bi-chevron-up');
-                this.#purchasesArrow.classList.add('bi-chevron-down');
+                readingsList.style.display = 'none';
+                this.#readingsArrow.classList.remove('bi-chevron-up');
+                this.#readingsArrow.classList.add('bi-chevron-down');
             }
         });
 
@@ -59,22 +59,22 @@ export class ModelView extends View {
         }
     }
 
-    renderAllUsersPurchases(users) {
-        const html = users.map(user => {
-            const purchasesHtml = user.purchases.map(purchase => {
-                return `<span class="badge bg-light text-dark me-1 mb-1">${purchase.name}</span>`;
+    renderAllPeopleReadings(People) {
+        const html = People.map(person => {
+            const readingsHtml = person.readings.map(reading => {
+                return `<span class="badge bg-light text-dark me-1 mb-1">${reading.name}</span>`;
             }).join('');
 
             return `
-                <div class="user-purchase-summary">
-                    <h6>${user.name} (Age: ${user.age})</h6>
-                    <div class="purchases-badges">
-                        ${purchasesHtml || '<span class="text-muted">No purchases</span>'}
+                <div class="person-reading-summary">
+                    <h6>${person.name} (Age: ${person.age})</h6>
+                    <div class="readings-badges">
+                        ${readingsHtml || '<span class="text-muted">No readings</span>'}
                     </div>
                 </div>
             `;
         }).join('');
 
-        this.#allUsersPurchasesList.innerHTML = html;
+        this.#allPeopleReadingsList.innerHTML = html;
     }
 }

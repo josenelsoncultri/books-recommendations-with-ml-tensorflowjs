@@ -49,17 +49,17 @@ const WEIGHTS = {
     age: 0.1
 };
 
-function makeContext(products, users) {
-    const ages = users.map(u => u.age)
-    const prices = products.map(p => p.price)
+function makeContext(books, People) {
+    const ages = People.map(u => u.age)
+    const prices = books.map(p => p.price)
     const colors = [...
         new Set(
-            products.map(p => p.color)
+            books.map(p => p.color)
         )
     ]
     const categories = [...
         new Set(
-            products.map(p => p.category)
+            books.map(p => p.category)
         )
     ]
 
@@ -83,34 +83,34 @@ function makeContext(products, users) {
     const ageSums = {}
     const ageCounts = {}
 
-    users.forEach(user => {
-        user.purchases.forEach(p => {
-            ageSums[p.name] = (ageSums[p.name] || 0) + user.age
+    People.forEach(person => {
+        person.readings.forEach(p => {
+            ageSums[p.name] = (ageSums[p.name] || 0) + person.age
             ageCounts[p.name] = (ageCounts[p.name] || 0) + 1
         })
     })
 
-    const productAverageAgeNormalization = Object.fromEntries(
-        products.map(product => {
+    const bookAverageAgeNormalization = Object.fromEntries(
+        books.map(book => {
             //Se existir uma categoria, pegar uma média das idades e dividir pela quantidade de vezes que um produto foi comprado,
             //com o objetivo de saber a média de idade das pessoas que compraram o produto
-            const avg = ageCounts[product.name] ? ageSums[product.name] / ageCounts[product.name] : midAge 
+            const avg = ageCounts[book.name] ? ageSums[book.name] / ageCounts[book.name] : midAge 
         
             //Realiza a normalização dos dados do produto, tendo por base a média de idade dos compradores daquele produto
-            return [product.name, normalize(avg, minAge, maxAge)]
+            return [book.name, normalize(avg, minAge, maxAge)]
         })
     )
 
     return {
-        products, 
-        users, 
+        books, 
+        People, 
         colorsIndex,
         categoriesIndex,
         minAge,
         maxAge,
         minPrice,
         maxPrice,
-        productAverageAgeNormalization,
+        bookAverageAgeNormalization,
         numCategories: categories.length,
         numColors: colors.length,
         //Preço + idade + categories + colors
@@ -119,29 +119,29 @@ function makeContext(products, users) {
 }
 
 //Função para realizar a normalização dos dados em cima dos tensores
-function encodeProduct(product, context) {
+function encodeBook(book, context) {
     //Normalizando dados para ficar no range de 0 a 1
     //--aplicando também o peso na recomendação
     const price = tf.tensor1d([
         normalize(
-            product.price, 
+            book.price, 
             context.minPrice, 
             context.maxPrice
         ) * WEIGHTS.price
     ])
 
     const age = tf.tensor1d([
-        (context.productAverageAgeNormalization[product.name] ?? 0.5) * WEIGHTS.age
+        (context.bookAverageAgeNormalization[book.name] ?? 0.5) * WEIGHTS.age
     ])
 
     const category = oneHotWeighted(
-        context.categoriesIndex[product.category],
+        context.categoriesIndex[book.category],
         context.numCategories,
         WEIGHTS.category
     )
 
     const color = oneHotWeighted(
-        context.colorsIndex[product.color],
+        context.colorsIndex[book.color],
         context.numColors,
         WEIGHTS.color
     )
@@ -155,10 +155,10 @@ function encodeProduct(product, context) {
 }
 
 //Retornará o perfil de compras de um usuário específico
-function encodeUser(user, context) {
-    if (user.purchases.length) {
+function encodeperson(person, context) {
+    if (person.readings.length) {
         return tf.stack(
-            user.purchases.map(product => encodeProduct(product, context))
+            person.readings.map(book => encodeBook(book, context))
         )
         .mean(0)
         .reshape(
@@ -173,7 +173,7 @@ function encodeUser(user, context) {
         [
             tf.zeros([1]), //Preço é ignorado
             tf.tensor1d([
-                normalize(user.age, context.minAge, context.maxAge) * WEIGHTS.age
+                normalize(person.age, context.minAge, context.maxAge) * WEIGHTS.age
             ]),
             tf.zeros([context.numCategories]), //Categoria ignorada
             tf.zeros([context.numColors]), //Cores ignoradas
@@ -191,18 +191,18 @@ function createTrainingData(context) {
     const inputs = []
     const labels = []
 
-    context.users
-        .filter(u => u.purchases.length)
-        .forEach(user => {
-            const userVector = encodeUser(user, context).dataSync() 
-            context.products.forEach(product => {
-                const productVector = encodeProduct(product, context).dataSync()
-                const label = user.purchases.some(
-                    purchase => purchase.name === product.name ? 1 : 0
+    context.People
+        .filter(u => u.readings.length)
+        .forEach(person => {
+            const personVector = encodeperson(person, context).dataSync() 
+            context.books.forEach(book => {
+                const bookVector = encodeBook(book, context).dataSync()
+                const label = person.readings.some(
+                    reading => reading.name === book.name ? 1 : 0
                 )
 
-                //Combinar usuário e product
-                inputs.push([...userVector, ...productVector])
+                //Combinar usuário e book
+                inputs.push([...personVector, ...bookVector])
                 labels.push(label)
             })
         })
@@ -210,7 +210,7 @@ function createTrainingData(context) {
     return {
         xs: tf.tensor2d(inputs),
         ys: tf.tensor2d(labels, [labels.length, 1]),
-        inputDimension: context.dimensions * 2 //Tamanho = userVector + productVector
+        inputDimension: context.dimensions * 2 //Tamanho = personVector + bookVector
     }
 }
 
@@ -218,11 +218,11 @@ function createTrainingData(context) {
 // 📌 Exemplo de como um usuário é ANTES da codificação
 // ====================================================================
 /*
-const exampleUser = {
+const exampleperson = {
     id: 201,
     name: 'Rafael Souza',
     age: 27,
-    purchases: [
+    readings: [
         { id: 8, name: 'Boné Estiloso', category: 'acessórios', price: 39.99, color: 'preto' },
         { id: 9, name: 'Mochila Executiva', category: 'acessórios', price: 159.99, color: 'cinza' }
     ]
@@ -330,23 +330,23 @@ async function configureNeuralNetworkAndTrain(trainData) {
     return model
 }
 
-async function trainModel({ users }) {
-    console.log('Training model with users:', users)
+async function trainModel({ People }) {
+    console.log('Training model with People:', People)
     postMessage({ type: workerEvents.progressUpdate, progress: { progress: 50 } });
     
     //Carregando a base de dados de produtos em memória para realizar a primeira etapa de todas, a normalização dos dados
-    const products = await (await fetch('/data/products.json')).json()
+    const books = await (await fetch('/data/products.json')).json()
     
     //Montando o range de valores para classificação, normalização dos dados e predição
-    const context = makeContext(products, users)
+    const context = makeContext(books, People)
     
-    context.productVectors = products.map(product => {
+    context.bookVectors = books.map(book => {
         return {
-            name: product.name,
+            name: book.name,
             meta: {
-                ...product
+                ...book
             },
-            vector: encodeProduct(product, context).dataSync()
+            vector: encodeBook(book, context).dataSync()
         }
     })
 
@@ -360,17 +360,17 @@ async function trainModel({ users }) {
     postMessage({ type: workerEvents.trainingComplete });
 }
 
-function recommend({ user }) {
+function recommend({ person }) {
     if (!_model) return;
     const context = _globalCtx
 
-    console.log('will recommend for user:', user)
+    console.log('will recommend for person:', person)
     
     // 1️⃣ Converta o usuário fornecido no vetor de features codificadas
     // (preço ignorado, idade normalizada, categorias ignoradas)
     // Isso transforma as informações do usuário no mesmo formato numérico
     // que foi usado para treinar o modelo.
-    const userVector = encodeUser(user, context).dataSync()
+    const personVector = encodeperson(person, context).dataSync()
     
     // Em aplicações reais:
     //  Armazene todos os vetores de produtos em um banco de dados vetorial (como Postgres, Neo4j ou Pinecone)
@@ -379,9 +379,9 @@ function recommend({ user }) {
     // 2️⃣ Crie pares de entrada: para cada produto, concatene o vetor do usuário
     // com o vetor codificado do produto.
     // Por quê? O modelo prevê o "score de compatibilidade" para cada par (usuário, produto).
-    const inputs = context.productVectors.map(({vector}) => {
+    const inputs = context.bookVectors.map(({vector}) => {
         return [
-            ...userVector,
+            ...personVector,
             ...vector
         ]
     })
@@ -398,7 +398,7 @@ function recommend({ user }) {
     // 5️⃣ Extraia as pontuações para um array JS normal.
     const scores = predictions.dataSync()
 
-    const recommendations = context.productVectors.map((item, index) => {
+    const recommendations = context.bookVectors.map((item, index) => {
         return {
             ...item.meta,
             name: item.name,
@@ -414,7 +414,7 @@ function recommend({ user }) {
     // para a thread principal (a UI pode exibi-los agora).
     postMessage({
         type: workerEvents.recommend,
-        user,
+        person,
         recommendations: sortedItems
     })
 }

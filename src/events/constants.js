@@ -1,8 +1,8 @@
 export const events = {
-    userSelected: 'user:selected',
-    usersUpdated: 'users:updated',
-    purchaseAdded: 'purchase:added',
-    purchaseRemoved: 'purchase:remove',
+    personSelected: 'person:selected',
+    PeopleUpdated: 'People:updated',
+    readingAdded: 'reading:added',
+    readingRemoved: 'reading:remove',
     modelTrain: 'training:train',
     trainingComplete: 'training:complete',
 

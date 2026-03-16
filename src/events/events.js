@@ -90,51 +90,51 @@ export default class Events {
     }
 
 
-    static onUserSelected(callback) {
-        document.addEventListener(events.userSelected, (event) => {
+    static onpersonSelected(callback) {
+        document.addEventListener(events.personSelected, (event) => {
             return callback(event.detail);
         });
     }
-    static dispatchUserSelected(data) {
-        const event = new CustomEvent(events.userSelected, {
+    static dispatchpersonSelected(data) {
+        const event = new CustomEvent(events.personSelected, {
             detail: data
         });
         document.dispatchEvent(event);
     }
 
-    static onUsersUpdated(callback) {
-        document.addEventListener(events.usersUpdated, (event) => {
+    static onPeopleUpdated(callback) {
+        document.addEventListener(events.PeopleUpdated, (event) => {
             return callback(event.detail);
         });
     }
-    static dispatchUsersUpdated(data) {
-        const event = new CustomEvent(events.usersUpdated, {
+    static dispatchPeopleUpdated(data) {
+        const event = new CustomEvent(events.PeopleUpdated, {
             detail: data
         });
         document.dispatchEvent(event);
     }
 
 
-    static onPurchaseAdded(callback) {
-        document.addEventListener(events.purchaseAdded, (event) => {
+    static onReadingAdded(callback) {
+        document.addEventListener(events.readingAdded, (event) => {
             return callback(event.detail);
         });
     }
-    static dispatchPurchaseAdded(data) {
-        const event = new CustomEvent(events.purchaseAdded, {
+    static dispatchReadingAdded(data) {
+        const event = new CustomEvent(events.readingAdded, {
             detail: data
         });
         document.dispatchEvent(event);
     }
 
-    static onPurchaseRemoved(callback) {
-        document.addEventListener(events.purchaseRemoved, (event) => {
+    static onReadingRemoved(callback) {
+        document.addEventListener(events.readingRemoved, (event) => {
             return callback(event.detail);
         });
     }
 
-    static dispatchEventPurchaseRemoved(data) {
-        const event = new CustomEvent(events.purchaseRemoved, {
+    static dispatchEventReadingRemoved(data) {
+        const event = new CustomEvent(events.readingRemoved, {
             detail: data
         });
         document.dispatchEvent(event);

@@ -69,11 +69,11 @@ export class WorkerController {
         };
     }
 
-    triggerTrain(users) {
-        this.#worker.postMessage({ action: workerEvents.trainModel, users });
+    triggerTrain(People) {
+        this.#worker.postMessage({ action: workerEvents.trainModel, People });
     }
 
-    triggerRecommend(user) {
-        this.#worker.postMessage({ action: workerEvents.recommend, user });
+    triggerRecommend(person) {
+        this.#worker.postMessage({ action: workerEvents.recommend, person });
     }
 }
