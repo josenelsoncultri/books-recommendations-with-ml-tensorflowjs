@@ -20,7 +20,7 @@ export class BookView extends View {
 
     onpersonSelected(person) {
         // Enable buttons if a person is selected, otherwise disable them
-        this.setButtonsState(person.id ? false : true);
+        this.setButtonsState(person.Id ? false : true);
     }
 
     registerBuyBookCallback(callback) {
@@ -31,11 +31,11 @@ export class BookView extends View {
         if (!this.#bookTemplate) return;
         const html = books.map(book => {
             return this.replaceTemplate(this.#bookTemplate, {
-                id: book.id,
-                name: book.name,
-                category: book.category,
-                price: book.price,
-                color: book.color,
+                ID: book.ID,
+                Titulo: book.Titulo,
+                Autor: book.Autor,
+                Paginas: book.Paginas,
+                Ano: book.Ano,
                 book: JSON.stringify(book)
             });
         }).join('');
@@ -73,7 +73,6 @@ export class BookView extends View {
                     button.classList.add('btn-primary');
                 }, 500);
                 this.#onBuyBook(book, button);
-
             });
         });
     }

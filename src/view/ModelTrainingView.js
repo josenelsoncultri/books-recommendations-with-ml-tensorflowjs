@@ -59,15 +59,15 @@ export class ModelView extends View {
         }
     }
 
-    renderAllPeopleReadings(People) {
+    async renderAllPeopleReadingsAsync(People) {
         const html = People.map(person => {
             const readingsHtml = person.readings.map(reading => {
-                return `<span class="badge bg-light text-dark me-1 mb-1">${reading.name}</span>`;
+                return `<span class="badge bg-light text-dark me-1 mb-1">${reading.NomeLivro}</span>`;
             }).join('');
 
             return `
                 <div class="person-reading-summary">
-                    <h6>${person.name} (Age: ${person.age})</h6>
+                    <h6>${person.Nome} (Idade: ${person.Idade})</h6>
                     <div class="readings-badges">
                         ${readingsHtml || '<span class="text-muted">No readings</span>'}
                     </div>

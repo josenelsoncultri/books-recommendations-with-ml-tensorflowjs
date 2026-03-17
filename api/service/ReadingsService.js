@@ -7,7 +7,8 @@ export class ReadingsService {
             const result = await pool
                 .request()
                 .input("personId", personId)
-                .query("SELECT * FROM [ListaLeitura] WHERE [Embeddings] IS NULL AND [PessoaId] = @personId");
+                .query("SELECT LL.Id, LL.PessoaId, LL.LivroId, L.Titulo AS NomeLivro, L.Autor, L.Paginas, L.Ano FROM [ListaLeitura] LL " + 
+                    "INNER JOIN [Livros] L ON ([L].[ID] = [LL].[LivroId]) WHERE [PessoaId] = @personId");
 
             return result.recordset;
         } catch (err) {

@@ -1,3 +1,5 @@
+//TODO: Verificar aqui a forma correta de processar esse serviço, aparentemente terá que ser importado nos controllers antes
+//import { PeopleService } from '../service/PeopleService.js';
 import 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js';
 import { workerEvents, Parameters } from '../events/constants.js';
 import { BookService } from '../service/BookService.js';
@@ -9,6 +11,7 @@ Workers: permite o envio e recebimento de mensagens para o navegador
 */
 
 var bookService = new BookService();
+
 //Variáveis globais, que serão reutilizadas em outras etapas do treinamento
 let _globalCtx = {};
 let _model = null;
@@ -41,67 +44,78 @@ function oneHotWeighted(index, length, weight) {
 //Aqui, a categoria é o item mais importante, levando 40% do peso da indicação
 //A cor 30%, preço 20% e idade 10%
 const WEIGHTS = {
-    autor: 0.5,
-    paginas: 0.3,
-    idades: 0.2
+    category: 0.4,
+    color: 0.3,
+    price: 0.2,
+    age: 0.1
 };
 
 function makeContext(books, People) {
-    const idades = People.map(u => u.Idade)
-    const paginas = books.map(p => p.Paginas)
-    const autores = [...
+    const ages = People.map(u => u.age)
+    const prices = books.map(p => p.price)
+    const colors = [...
         new Set(
-            books.map(p => p.Autor)
+            books.map(p => p.color)
+        )
+    ]
+    const categories = [...
+        new Set(
+            books.map(p => p.category)
         )
     ]
 
-    const minIdade = Math.min(...idades)
-    const maxIdade = Math.max(...idades)
+    const minAge = Math.min(...ages)
+    const maxAge = Math.max(...ages)
     
-    const minPaginas = Math.min(...paginas)
-    const maxPaginas = Math.max(...paginas)
+    const minPrice = Math.min(...prices)
+    const maxPrice = Math.max(...prices)
 
-    const autoresIndex = Object.fromEntries(autores.map((autor, index) => {
-        return [autor, index]
+    const colorsIndex = Object.fromEntries(colors.map((color, index) => {
+        return [color, index]
+    }))
+
+    const categoriesIndex = Object.fromEntries(categories.map((category, index) => {
+        return [category, index]
     }))
 
     //Computar a média de idades dos compradores por produto
     //--Ajuda a personalizar
-    const midAge = (minIdade + maxIdade) / 2
+    const midAge = (minAge + maxAge) / 2
     const ageSums = {}
     const ageCounts = {}
 
-    for (const person of People)
-    {
+    People.forEach(person => {
         person.readings.forEach(p => {
-            ageSums[p.NomeLivro] = (ageSums[p.NomeLivro] || 0) + person.Idade
-            ageCounts[p.NomeLivro] = (ageCounts[p.NomeLivro] || 0) + 1
+            ageSums[p.name] = (ageSums[p.name] || 0) + person.age
+            ageCounts[p.name] = (ageCounts[p.name] || 0) + 1
         })
-    }
+    })
 
     const bookAverageAgeNormalization = Object.fromEntries(
         books.map(book => {
             //Se existir uma categoria, pegar uma média das idades e dividir pela quantidade de vezes que um produto foi comprado,
             //com o objetivo de saber a média de idade das pessoas que compraram o produto
-            const avg = ageCounts[book.Titulo] ? ageSums[book.Titulo] / ageCounts[book.Titulo] : midAge 
+            const avg = ageCounts[book.name] ? ageSums[book.name] / ageCounts[book.name] : midAge 
         
             //Realiza a normalização dos dados do produto, tendo por base a média de idade dos compradores daquele produto
-            return [book.Titulo, normalize(avg, minIdade, maxIdade)]
+            return [book.name, normalize(avg, minAge, maxAge)]
         })
     )
 
     return {
         books, 
         People, 
-        autoresIndex,
-        minIdade,
-        maxIdade,
-        minPaginas,
-        maxPaginas,
+        colorsIndex,
+        categoriesIndex,
+        minAge,
+        maxAge,
+        minPrice,
+        maxPrice,
         bookAverageAgeNormalization,
-        numautores: autores.length,
-        //Paginas + idade + autores
-        dimensions: 2 +  autores.length 
+        numCategories: categories.length,
+        numColors: colors.length,
+        //Preço + idade + categories + colors
+        dimensions: 2 + categories.length + colors.length 
     }
 }
 
@@ -109,33 +123,40 @@ function makeContext(books, People) {
 function encodeBook(book, context) {
     //Normalizando dados para ficar no range de 0 a 1
     //--aplicando também o peso na recomendação
-    const page = tf.tensor1d([
+    const price = tf.tensor1d([
         normalize(
-            book.Pagina, 
-            context.minPaginas, 
-            context.maxPaginas
-        ) * WEIGHTS.paginas
+            book.price, 
+            context.minPrice, 
+            context.maxPrice
+        ) * WEIGHTS.price
     ])
 
     const age = tf.tensor1d([
-        (context.bookAverageAgeNormalization[book.Titulo] ?? 0.5) * WEIGHTS.idades
+        (context.bookAverageAgeNormalization[book.name] ?? 0.5) * WEIGHTS.age
     ])
 
-    const author = oneHotWeighted(
-        context.autoresIndex[book.Autor],
-        context.numautores,
-        WEIGHTS.autor
+    const category = oneHotWeighted(
+        context.categoriesIndex[book.category],
+        context.numCategories,
+        WEIGHTS.category
+    )
+
+    const color = oneHotWeighted(
+        context.colorsIndex[book.color],
+        context.numColors,
+        WEIGHTS.color
     )
 
     return tf.concat1d([
-        page, 
+        price, 
         age, 
-        author
+        category, 
+        color
     ])
 }
 
 //Retornará o perfil de compras de um usuário específico
-function encodePerson(person, context) {
+function encodeperson(person, context) {
     if (person.readings.length) {
         return tf.stack(
             person.readings.map(book => encodeBook(book, context))
@@ -153,9 +174,10 @@ function encodePerson(person, context) {
         [
             tf.zeros([1]), //Preço é ignorado
             tf.tensor1d([
-                normalize(person.Idade, context.minIdade, context.maxIdade) * WEIGHTS.idades
+                normalize(person.age, context.minAge, context.maxAge) * WEIGHTS.age
             ]),
-            tf.zeros([context.numautores]), //Autores ignorados
+            tf.zeros([context.numCategories]), //Categoria ignorada
+            tf.zeros([context.numColors]), //Cores ignoradas
         ]
     ).reshape(
         [
@@ -170,24 +192,22 @@ function createTrainingData(context) {
     const inputs = []
     const labels = []
 
-    for (const person of context.People)
-    {
-        const teste = encodePerson(person, context)
-        const personVector = teste.dataSync() 
+    context.People
+        .filter(u => u.readings.length)
+        .forEach(person => {
+            const personVector = encodeperson(person, context).dataSync() 
+            context.books.forEach(book => {
+                const bookVector = encodeBook(book, context).dataSync()
+                const label = person.readings.some(
+                    reading => reading.name === book.name ? 1 : 0
+                )
 
-        for (const book of context.books)
-        {
-            const bookVector = encodeBook(book, context).dataSync()
-            const label = person.readings.some(
-                reading => reading.NomeLivro === book.Titulo ? 1 : 0
-            )
+                //Combinar usuário e book
+                inputs.push([...personVector, ...bookVector])
+                labels.push(label)
+            })
+        })
 
-            //Combinar usuário e book
-            inputs.push([...personVector, ...bookVector])
-            labels.push(label)   
-        }
-    }
-    
     return {
         xs: tf.tensor2d(inputs),
         ys: tf.tensor2d(labels, [labels.length, 1]),
@@ -323,7 +343,7 @@ async function trainModel({ People }) {
     
     context.bookVectors = books.map(book => {
         return {
-            name: book.Titulo,
+            name: book.name,
             meta: {
                 ...book
             },
@@ -341,7 +361,6 @@ async function trainModel({ People }) {
     postMessage({ type: workerEvents.trainingComplete });
 }
 
-//Função recommend não pode ser assíncrona, a API do Worker não suporta nativamente
 function recommend({ person }) {
     if (!_model) return;
     const context = _globalCtx
@@ -352,7 +371,7 @@ function recommend({ person }) {
     // (preço ignorado, idade normalizada, categorias ignoradas)
     // Isso transforma as informações do usuário no mesmo formato numérico
     // que foi usado para treinar o modelo.
-    const personVector = encodePerson(person, context).dataSync()
+    const personVector = encodeperson(person, context).dataSync()
     
     // Em aplicações reais:
     //  Armazene todos os vetores de produtos em um banco de dados vetorial (como Postgres, Neo4j ou Pinecone)
@@ -378,9 +397,7 @@ function recommend({ person }) {
     const predictions = _model.predict(inputTensor)
 
     // 5️⃣ Extraia as pontuações para um array JS normal.
-    //TODO: O score não está sendo calculado corretamente, conferir
     const scores = predictions.dataSync()
-    debugger
 
     const recommendations = context.bookVectors.map((item, index) => {
         return {

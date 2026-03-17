@@ -65,11 +65,11 @@ export class ModelController {
     }
     async handleRunRecommendation() {
         const currentperson = this.#currentperson;
-        const updatedperson = await this.#personService.getpersonById(currentperson.id);
+        const updatedperson = await this.#personService.getpersonById(currentperson.Id);
         this.#events.dispatchRecommend(updatedperson);
     }
 
     async refreshPeopleReadingData({ People }) {
-        this.#modelView.renderAllPeopleReadings(People);
+        await this.#modelView.renderAllPeopleReadingsAsync(People);
     }
 }

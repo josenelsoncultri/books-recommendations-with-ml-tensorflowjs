@@ -36,13 +36,11 @@ export class PersonController {
     }
 
     setupReadingObserver() {
-
         this.#events.onReadingAdded(
             async (...data) => {
                 return this.handleReadingAdded(...data);
             }
         );
-
     }
 
     async handlepersonSelect(personId) {
@@ -52,9 +50,10 @@ export class PersonController {
     }
 
     async handleReadingAdded({ person, book }) {
-        const updatedperson = await this.#personService.getpersonById(person.id);
+        const updatedperson = await this.#personService.getpersonById(person.Id);
         updatedperson.readings.push({
-            ...book
+            ...book,
+            NomeLivro: book.Titulo
         })
 
         await this.#personService.updateperson(updatedperson);
@@ -77,11 +76,9 @@ export class PersonController {
         }
     }
 
-
     async displaypersonDetails(person) {
         this.#personView.renderpersonDetails(person);
         this.#personView.renderPastReadings(person.readings);
-
     }
 
     getSelectedpersonId() {

@@ -26,7 +26,6 @@ export class BookController {
     }
 
     setupEventListeners() {
-
         this.#events.onpersonSelected((person) => {
             this.#currentperson = person;
             this.#bookView.onpersonSelected(person);

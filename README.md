@@ -16,6 +16,8 @@ Projeto para expandir o conhecimento adquirido no módulo 03 da pós de Engenhar
 
 - Em seguida gerei uma lista de 50 pessoas (Nome, Idade e Sexo) com o Gemini, pedindo a ele também que gerasse uma tabela de listagem de leituras, gerando uma massa de dados aleatória e uma possível nota de 1 a 5 que o pessoas deu para aquela leitura.
 
+- Durante a implementação esbarrei em problemas pelo tamanho dos datasets (mais de 9 mil livros com 50 usuários :O). Nesse ponto reduzi para concluir a implementação
+
 ### Construção da API de conexão com o SQL Server
 
 - API criada para servir de interface de conexão com o SQL Server 2025, uma vez que o processamento acontecerá dentro do browser, e o mesmo não terá a capacidade de se conectar diretamente ao SQL Server  
@@ -31,3 +33,6 @@ Projeto para expandir o conhecimento adquirido no módulo 03 da pós de Engenhar
 # Next Steps
 - API
   - [ ] Implementar Autenticação
+- Aplicação
+  - [ ] Melhorar modelo
+  - [ ] Modificar leituras da API e melhorar quantidade de leituras dos dados para processar os tensores

@@ -20,3 +20,7 @@ export const workerEvents = {
     tfVisData: 'tfvis:data',
     tfVisLogs: 'tfvis:logs',
 }
+
+export const Parameters = {
+    API_URL: 'http://localhost:4500'
+}

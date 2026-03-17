@@ -31,7 +31,6 @@ const w = WorkerController.init({
 const People = await personService.getDefaultPeople();
 w.triggerTrain(People);
 
-
 ModelController.init({
     modelView,
     personService,
@@ -50,7 +49,6 @@ BookController.init({
     events: Events,
 });
 
-
 const personController = PersonController.init({
     personView,
     personService,
@@ -58,10 +56,11 @@ const personController = PersonController.init({
     events: Events,
 });
 
-
 personController.renderPeople({
-    "id": 99,
-    "name": "Josézin da Silva",
-    "age": 30,
+    "Id": 1000,
+    "Nome": "José Nelson Cultri",
+    "Idade": 33,
+    "Sexo": "M",
+    "DataCadastro": new Date().getTime(),
     "readings": []
 });

@@ -30,14 +30,14 @@ export class PersonView extends View {
 
     renderpersonOptions(People) {
         const options = People.map(person => {
-            return `<option value="${person.id}">${person.name}</option>`;
+            return `<option value="${person.Id}">${person.Nome}</option>`;
         }).join('');
 
         this.#personSelect.innerHTML += options;
     }
 
     renderpersonDetails(person) {
-        this.#personAge.value = person.age;
+        this.#personAge.value = person.Idade;
     }
 
     renderPastReadings(pastReadings) {
@@ -122,7 +122,6 @@ export class PersonView extends View {
                     if (document.querySelectorAll('.past-reading').length === 0) {
                         this.renderPastReadings([]);
                     }
-
                 }, 500);
 
             }
