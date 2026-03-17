@@ -5,7 +5,7 @@
   "description": "An API to connect Book Recommendations Tensorflow.js application to SQL Server database",
   "main": "index.js",
   "scripts": {
-    "start": "browser-sync -w . --server --files '*.js' --port 4500",
+    "start": "nodemon -L index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,11 +18,13 @@
   "author": "José Nelson Cultri",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "mssql": "^12.2.0"
   },
   "devDependencies": {
-    "browser-sync": "^3.0.4"
+    "browser-sync": "^3.0.4",
+    "nodemon": "^3.1.14"
   }
 }

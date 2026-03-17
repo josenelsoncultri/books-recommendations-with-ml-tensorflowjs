@@ -1,12 +1,13 @@
 import { getConnection } from "../modules/db.js";
 
-export class PeopleService {
-    async getPeopleUntrainedAsync() {
+export class ReadingsService {
+    async getUntrainedReadingListByPersonAsync(personId) {
         try {
             const pool = await getConnection();
             const result = await pool
                 .request()
-                .query("SELECT * FROM [Pessoas] WHERE [Embeddings] IS NULL");
+                .input("personId", personId)
+                .query("SELECT * FROM [ListaLeitura] WHERE [Embeddings] IS NULL AND [PessoaId] = @personId");
 
             return result.recordset;
         } catch (err) {

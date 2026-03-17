@@ -1,16 +1,16 @@
 import { getConnection } from "../modules/db.js";
 
-export class PeopleService {
-    async getPeopleUntrainedAsync() {
+export class BooksService {
+    async getBooksUntrainedAsync() {
         try {
             const pool = await getConnection();
             const result = await pool
                 .request()
-                .query("SELECT * FROM [Pessoas] WHERE [Embeddings] IS NULL");
+                .query("SELECT * FROM [Livros] WHERE [Embeddings] IS NULL");
 
             return result.recordset;
         } catch (err) {
-            console.error("Erro ao buscar pessoas:", err);
+            console.error("Erro ao buscar livros:", err);
             throw err;
         }
     }
